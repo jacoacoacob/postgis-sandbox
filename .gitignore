@@ -1,0 +1,17 @@
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.vscode
+*.idea
+
+# Directories bound to container
+data
+shapefiles
+
+# Local env files
+.env
+.env.*
+!.env.example
