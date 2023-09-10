@@ -8,8 +8,8 @@ logs
 *.idea
 
 # Directories bound to container
-data
 shapefiles
+output
 
 # Local env files
 .env
