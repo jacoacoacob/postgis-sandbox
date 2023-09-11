@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+THRESHOLD=$1
+
 docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuples-only <<EOSQL
     SELECT jsonb_build_object(
         'type', 'FeatureCollection',
@@ -23,7 +25,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             ON (
                 -- Only return rows where alder_district geometry area overlaps 
                 -- a block group area geometry by more than 5 percent
-                ST_Area(ST_Intersection(ad.geom, bg.geom)) / ST_Area(bg.geom) * 100 > 5
+                ST_Area(ST_Intersection(ad.geom, bg.geom)) / ST_Area(bg.geom) * 100 > $THRESHOLD
             )
             GROUP BY bg.gid
         ) AS props
