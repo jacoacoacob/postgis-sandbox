@@ -37,6 +37,22 @@ _A lot of these steps were adapted from this [PostGIS tutorial on loading data f
     ```
 
 
+## Generating GeoJSON
+
+Assuming you've followed the steps for [loading shapefile data](#loading-shapefile-data) for the `Zip Code Tabulation Areas` and `States (and equivelant)` shapefiles from [the census](https://www.census.gov/cgi-bin/geo/shapefiles/index.php) into tables `tl_2022_us_zcta` and `tl_2022_us_state` respectively, you can use the shell scripts in [./scripts](./scripts/) to generate GeoJSON FeatureCollection objects. You can validate the results using the JSFiddle link from this [Mapbox example](https://docs.mapbox.com/mapbox-gl-js/example/multiple-geometries/) or with one of the other resources listed in [this PostGIS docs page](https://postgis.net/docs/en/ST_AsGeoJSON.html)
+
+Example:
+```bash
+# Make sure the scripts are executable
+chmod +x scripts/*
+
+# Generate a FeatureCollection object for zipcodes 53704, 53705, and 53706 and save it in a file called zipcodes.json
+scripts/us-zcta.sh 53704 53705 53706 > zipcodes.json
+
+# Alternatively, list a bunch of zipcodes in a text file and have the script read from that
+scripts/us-zcta.sh --file dane-county-zipcodes.txt > zipcodes.json
+```
+
 
 
 
