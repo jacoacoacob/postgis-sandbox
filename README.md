@@ -28,7 +28,7 @@ _A lot of these steps were adapted from this [PostGIS tutorial on loading data f
     ```bash
     docker compose exec db bash
     ```
-5. Use `shp2pgsql` and `psql` to transform and load the shapefile data into a table in the database. (In this case, I'm reprojecting from SRID `4269` to `4326`).
+5. Use `shp2pgsql` and `psql` to transform and load the shapefile data into a table in the database. (In this case, I'm reprojecting from SRID `4269` to `4326`...apparently [the GeoJSON standard **_requires_**](https://postgis.net/docs/en/ST_AsGeoJSON.html) SRID 4326).
     ```bash
     shp2pgsql -D -I -s 4269:4326 \
         /tmp/shapefiles/tl_2022_us_state/tl_2022_us_state.shp \
