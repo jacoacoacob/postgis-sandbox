@@ -13,7 +13,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             'type', 'Feature',
             'id', props.gid,
             'geometry', ST_AsGeoJSON(ST_ReducePrecision(props.geom, 0.0001))::jsonb,
-            'props', to_jsonb(props.*) - 'geom' - 'gid'
+            'properties', to_jsonb(props.*) - 'geom' - 'gid'
         ) AS feature
         FROM (
             SELECT
@@ -24,7 +24,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             INNER JOIN alder_districts AS ad
             ON (
                 -- Only return rows where alder_district geometry area overlaps 
-                -- a block group area geometry by more than 5 percent
+                -- a block group area geometry by more than THRESHOLD percent
                 ST_Area(ST_Intersection(ad.geom, bg.geom)) / ST_Area(bg.geom) * 100 > $THRESHOLD
             )
             GROUP BY bg.gid
