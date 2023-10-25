@@ -9,6 +9,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
     )
     FROM (
         SELECT
+
           jsonb_build_object(
             'type', 'Feature',
             'id', props.id || '_' || 'demo',
@@ -18,18 +19,24 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
               )
             )::jsonb,
             'properties', jsonb_build_object(
-              'kind', props.kind,
+              'area_kind', props.area_kind,
               'id', props.id,
               'owner_count', props.owner_count,
               'renter_count', props.renter_count
             )
           ) demographic_metrics_feature,
+
           jsonb_build_object(
             'type', 'Feature',
             'id', props.id || '_' || 'evct',
             'geometry', ST_AsGeoJSON(ST_Centroid(props.geom))::jsonb,
-            'properties', to_jsonb(props.evictions)
+            'properties', jsonb_build_object(
+              'id', props.id,
+              'area_kind', props.area_kind,
+              'evictions', props.evictions
+            )
           ) eviction_metrics_feature
+
         FROM (
             SELECT
                 ec.evictions,
@@ -37,7 +44,14 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             FROM (
                 SELECT
                     id,
-                    jsonb_agg(to_jsonb(t.*) - 'renter_count' - 'owner_count' - 'block_group_name') evictions
+                    'Block Group' area_kind,
+                    jsonb_object_agg(
+                      t.filing_year,
+                      jsonb_build_object(
+                        'n_filings', t.n_filings,
+                        'filing_rate', t.filing_rate
+                      )
+                    ) evictions
                 fROM (
                     SELECT
                         ec.*,
@@ -50,7 +64,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
                     FROM (
                         SELECT
                             block_group_name,
-                            filing_year,
+                            filing_year::text,
                             COUNT(defendant_address) n_filings
                           FROM dane_block_groups          bg
                           LEFT OUTER JOIN eviction_cases  ec
@@ -77,7 +91,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             ) ec
             JOIN (
                 SELECT
-                    'Block Group'                                   kind,
+                    'Block Group'                                   area_kind,
                     TRIM(LEADING '0' FROM bg.tractce) || blkgrpce   id,
                     ho.owner_count,
                     ho.renter_count,
