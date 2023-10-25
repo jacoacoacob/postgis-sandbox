@@ -19,7 +19,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
               )
             )::jsonb,
             'properties', jsonb_build_object(
-              'area_kind', props.area_kind,
+              'region', props.region,
               'id', props.id,
               'owner_count', props.owner_count,
               'renter_count', props.renter_count
@@ -32,7 +32,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             'geometry', ST_AsGeoJSON(ST_Centroid(props.geom))::jsonb,
             'properties', jsonb_build_object(
               'id', props.id,
-              'area_kind', props.area_kind,
+              'region', props.region,
               'evictions', props.evictions
             )
           ) eviction_metrics_feature
@@ -44,7 +44,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             FROM (
                 SELECT
                     id,
-                    'Block Group' area_kind,
+                    'Block Group' region,
                     jsonb_object_agg(
                       t.filing_year,
                       jsonb_build_object(
@@ -91,7 +91,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             ) ec
             JOIN (
                 SELECT
-                    'Block Group'                                   area_kind,
+                    'Block Group'                                   region,
                     TRIM(LEADING '0' FROM bg.tractce) || blkgrpce   id,
                     ho.owner_count,
                     ho.renter_count,
