@@ -10,7 +10,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
         SELECT jsonb_build_object(
             'type', 'Feature',
             'id', props.id,
-            'geometry', ST_AsGeoJSON(ST_ReducePrecision(props.geom, 0.0001))::jsonb,
+            'geometry', ST_AsGeoJSON(ST_ReducePrecision(props.geom, 0.000001))::jsonb,
             'properties', '{}'
         ) AS feature
         FROM (

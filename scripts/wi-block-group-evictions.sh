@@ -12,13 +12,13 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             'type', 'Feature',
             'id', props.id,
             'geometry', ST_AsGeoJSON(ST_Centroid(props.geom))::jsonb,
-            'properties', to_jsonb(props) - 'geom' - 'id'
+            'properties', to_jsonb(props) - 'geom'
         ) feature
         FROM (
             SELECT
-                madbg.filing_year || madbg.block_group_name id,
-                'Block Group ' || madbg.block_group_name geog_name,
-                madbg.filing_year::text,
+                dane_bg.filing_year || dane_bg.block_group_name id,
+                'Block Group ' || dane_bg.block_group_name geog_name,
+                dane_bg.filing_year::text,
                 ec.n_filings,
                 case
                   when ec.n_filings = 0 then 0
@@ -27,10 +27,10 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
                 end AS filing_rate,
                 ho.owner_count,
                 ho.renter_count,
-                madbg.geom
-              FROM mad_block_groups madbg
+                dane_bg.geom
+              FROM dane_block_groups dane_bg
               JOIN tl_2022_55_bg    tlbg
-                ON madbg.gid = tlbg.gid::text
+                ON dane_bg.gid = tlbg.gid::text
               JOIN tl_2022_55_tract tr
                 ON tlbg.countyfp = tr.countyfp AND tlbg.tractce = tr.tractce
               JOIN housing_census   ho
@@ -40,14 +40,14 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
                             gid,
                             filing_year,
                             COUNT(defendant_address) n_filings
-                          FROM mad_block_groups madbg
+                          FROM dane_block_groups dane_bg
                LEFT OUTER JOIN eviction_cases   ec
                             ON
-                              ST_Contains(madbg.geom, ec.defendant_address_point) AND
-                              madbg.filing_year = EXTRACT(YEAR FROM ec.filing_date)
+                              ST_Contains(dane_bg.geom, ec.defendant_address_point) AND
+                              dane_bg.filing_year = EXTRACT(YEAR FROM ec.filing_date)
                       GROUP BY gid, filing_year
               ) ec
-                ON ec.gid = madbg.gid AND ec.filing_year = madbg.filing_year
+                ON ec.gid = dane_bg.gid AND ec.filing_year = dane_bg.filing_year
         ) props
     ) f;
 EOSQL
