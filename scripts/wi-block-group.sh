@@ -22,7 +22,12 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
               'region', props.region,
               'id', props.id,
               'owner_count', props.owner_count,
-              'renter_count', props.renter_count
+              'renter_count', props.renter_count,
+              'renter_rate', case
+                when props.owner_count = 0 then 0
+                when props.renter_count = 0 then 0
+                else round(((props.renter_count::float / (props.owner_count + props.renter_count)::float) * 100))::numeric
+              end
             )
           ) demographic_metrics_feature,
 
@@ -44,7 +49,6 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             FROM (
                 SELECT
                     id,
-                    'Block Group' region,
                     jsonb_object_agg(
                       t.filing_year,
                       jsonb_build_object(
