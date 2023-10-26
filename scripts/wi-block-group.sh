@@ -12,7 +12,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
 
           jsonb_build_object(
             'type', 'Feature',
-            'id', props.id || '_' || 'demo',
+            'id', 'd_' || props.id,
             'geometry', ST_AsGeoJSON(
               ST_ReducePrecision(
                 ST_SimplifyPreserveTopology(props.geom, 0.0001), 0.000001
@@ -20,7 +20,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             )::jsonb,
             'properties', jsonb_build_object(
               'region', props.region,
-              'id', props.id,
+              'id', 'd_' || props.id,
               'n_households', props.owner_count + props.renter_count,
               'owner_count', props.owner_count,
               'renter_count', props.renter_count,
@@ -34,10 +34,10 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
 
           jsonb_build_object(
             'type', 'Feature',
-            'id', props.id || '_' || 'evct',
+            'id', 'e_' || props.id,
             'geometry', ST_AsGeoJSON(ST_Centroid(props.geom))::jsonb,
             'properties', jsonb_build_object(
-              'id', props.id,
+              'id', 'e_' || props.id,
               'region', props.region,
               'evictions', props.evictions
             )
