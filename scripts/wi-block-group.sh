@@ -21,6 +21,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
             'properties', jsonb_build_object(
               'region', props.region,
               'id', props.id,
+              'n_households', props.owner_count + props.renter_count,
               'owner_count', props.owner_count,
               'renter_count', props.renter_count,
               'renter_rate', case
