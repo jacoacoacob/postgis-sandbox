@@ -25,6 +25,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
               'owner_count', props.owner_count,
               'renter_count', props.renter_count,
               'renter_rate', case
+                when props.owner_count = 0 and props.renter_count > 0 then 100
                 when props.owner_count = 0 then 0
                 when props.renter_count = 0 then 0
                 else round(((props.renter_count::float / (props.owner_count + props.renter_count)::float) * 100))::numeric
