@@ -110,6 +110,7 @@ docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres --no-align --tuple
                 WHERE bg.countyfp = '025'
             ) bgho
             ON bgho.id = ec.id
+            WHERE bgho.renter_count > 0 OR bgho.owner_count > 0
         ) props
     ) f
 EOSQL
